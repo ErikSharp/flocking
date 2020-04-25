@@ -1,34 +1,28 @@
 import p5 from "p5";
 import { Drawable } from "./drawable";
 import { Updatable } from "./updatable";
-import { BouncyBox } from "./bouncyBox";
-import { Logo } from "./logo";
-import { Environment } from "./environment";
+import { Boid } from "./boid";
 
 export class Sketch implements Drawable, Updatable {
     updatables: Updatable[] = [];
     drawables: Drawable[] = [];
+    boids: Boid[] = [];
 
     constructor(private p: p5) {
         p.createCanvas(innerWidth * 0.8, innerHeight * 0.8);
 
-        let env = new Environment(p);
-        //the environment only updates
-        this.updatables.push(env);
-
-        //the logo only draws
-        //the order of the drawables is their z-index
-        this.drawables.push(new Logo(p, env));
-
-        for (let index = 0; index < 10; index++) {
-            let box = new BouncyBox(p);
-            //a BouncyBox should update and draw
-            this.updatables.push(box);
-            this.drawables.push(box);
+        for (let i = 0; i < 100; i++) {
+            var boid = new Boid(p);
+            this.boids.push(boid);
+            this.updatables.push(boid);
+            this.drawables.push(boid);
         }
     }
 
     update() {
+        for (const boid of this.boids) {
+            boid.flock(this.boids);
+        }
         this.updatables.forEach((u) => u.update());
     }
 
