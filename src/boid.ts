@@ -7,6 +7,7 @@ export class Boid implements Drawable, Updatable {
     velocity: Vector;
     acceleration: Vector;
     private readonly maxForce = 0.05;
+    private readonly maxSpeed = 4;
 
     constructor(private p: p5) {
         this.position = p.createVector(p.random(p.width), p.random(p.height));
@@ -50,6 +51,68 @@ export class Boid implements Drawable, Updatable {
 
         if (total > 0) {
             steering.div(total);
+            steering.setMag(this.maxSpeed);
+            steering.sub(this.velocity);
+            steering.limit(this.maxForce);
+        }
+
+        return steering;
+    }
+
+    private cohesion(boids: Boid[]) {
+        let perceptionRadius = 50;
+
+        let steering = this.p.createVector();
+        let total = 0;
+
+        for (const other of boids) {
+            let dist = this.p.dist(
+                this.position.x,
+                this.position.y,
+                other.position.x,
+                other.position.y
+            );
+            if (other != this && dist < perceptionRadius) {
+                steering.add(other.position);
+                total++;
+            }
+        }
+
+        if (total > 0) {
+            steering.div(total);
+            steering.sub(this.position);
+            steering.setMag(this.maxSpeed);
+            steering.sub(this.velocity);
+            steering.limit(this.maxForce);
+        }
+
+        return steering;
+    }
+
+    private separation(boids: Boid[]) {
+        let perceptionRadius = 50;
+
+        let steering = this.p.createVector();
+        let total = 0;
+
+        for (const other of boids) {
+            let dist = this.p.dist(
+                this.position.x,
+                this.position.y,
+                other.position.x,
+                other.position.y
+            );
+            if (other != this && dist < perceptionRadius) {
+                let diff = Vector.sub(this.position, other.position);
+                diff.div(dist);
+                steering.add(diff);
+                total++;
+            }
+        }
+
+        if (total > 0) {
+            steering.div(total);
+            steering.setMag(this.maxSpeed);
             steering.sub(this.velocity);
             steering.limit(this.maxForce);
         }
@@ -58,13 +121,19 @@ export class Boid implements Drawable, Updatable {
     }
 
     flock(boids: Boid[]) {
+        this.acceleration.mult(0);
         let alignment = this.align(boids);
-        this.acceleration = alignment;
+        let cohesion = this.cohesion(boids);
+        let separation = this.separation(boids);
+        this.acceleration.add(alignment);
+        this.acceleration.add(cohesion);
+        this.acceleration.add(separation);
     }
 
     update(): void {
         this.position.add(this.velocity);
         this.velocity.add(this.acceleration);
+        this.velocity.limit(this.maxSpeed);
 
         this.edges();
     }
