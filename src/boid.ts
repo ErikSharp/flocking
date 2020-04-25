@@ -1,15 +1,17 @@
 import { Drawable } from "./drawable";
 import { Updatable } from "./updatable";
 import p5, { Vector } from "p5";
+import { Environment } from "./environment";
 
 export class Boid implements Drawable, Updatable {
     position: Vector;
     velocity: Vector;
     acceleration: Vector;
+    private perceptionRadius = 50;
     private readonly maxForce = 0.05;
     private readonly maxSpeed = 4;
 
-    constructor(private p: p5) {
+    constructor(private p: p5, private env: Environment) {
         this.position = p.createVector(p.random(p.width), p.random(p.height));
         this.velocity = Vector.random2D();
         this.velocity.setMag(p.random(2, 4));
@@ -31,8 +33,6 @@ export class Boid implements Drawable, Updatable {
     }
 
     private align(boids: Boid[]) {
-        let perceptionRadius = 50;
-
         let steering = this.p.createVector();
         let total = 0;
 
@@ -43,7 +43,7 @@ export class Boid implements Drawable, Updatable {
                 other.position.x,
                 other.position.y
             );
-            if (other != this && dist < perceptionRadius) {
+            if (other != this && dist < this.perceptionRadius) {
                 steering.add(other.velocity);
                 total++;
             }
@@ -60,8 +60,6 @@ export class Boid implements Drawable, Updatable {
     }
 
     private cohesion(boids: Boid[]) {
-        let perceptionRadius = 50;
-
         let steering = this.p.createVector();
         let total = 0;
 
@@ -72,7 +70,7 @@ export class Boid implements Drawable, Updatable {
                 other.position.x,
                 other.position.y
             );
-            if (other != this && dist < perceptionRadius) {
+            if (other != this && dist < this.perceptionRadius) {
                 steering.add(other.position);
                 total++;
             }
@@ -90,8 +88,6 @@ export class Boid implements Drawable, Updatable {
     }
 
     private separation(boids: Boid[]) {
-        let perceptionRadius = 50;
-
         let steering = this.p.createVector();
         let total = 0;
 
@@ -102,7 +98,7 @@ export class Boid implements Drawable, Updatable {
                 other.position.x,
                 other.position.y
             );
-            if (other != this && dist < perceptionRadius) {
+            if (other != this && dist < this.perceptionRadius) {
                 let diff = Vector.sub(this.position, other.position);
                 diff.div(dist);
                 steering.add(diff);
@@ -125,6 +121,12 @@ export class Boid implements Drawable, Updatable {
         let alignment = this.align(boids);
         let cohesion = this.cohesion(boids);
         let separation = this.separation(boids);
+
+        alignment.mult(this.env.alignScale);
+        cohesion.mult(this.env.cohesionScale);
+        separation.mult(this.env.separationScale);
+        this.perceptionRadius *= this.env.perceptionScale;
+
         this.acceleration.add(alignment);
         this.acceleration.add(cohesion);
         this.acceleration.add(separation);

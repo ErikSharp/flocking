@@ -22,19 +22,37 @@ body {
     height: 100vh;
 }
 
-p {
+.controls {
     position: absolute;
-    bottom: 10px;
-    left: 20px;
-    font-family: sans-serif;
-    font-size: 4rem;
+    left: 50%;
+    transform: translate(-50%, 0);
+    width: 800px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 1rem;
+    margin-top: 0.3rem;
+
+    & .control-group {
+        display: grid;
+        grid-template-rows: repeat(3, 1fr);
+        justify-items: center;
+        background-color: lighten($secondary-color, 10);
+        border: $secondary-color solid 0.3rem;
+        border-radius: 1rem;
+        justify-self: center;
+        padding: 0.4rem 1rem;
+        color: $primary-color;
+        font-family: sans-serif;
+        font-size: 1.5rem;
+        box-shadow: 10px 10px 25px 0px rgba(0, 0, 0, 0.75);
+    }
 }
 
 .p5Canvas {
     position: absolute;
-    top: 50%;
+    top: 10rem;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, 0);
 
     box-shadow: 10px 10px 25px 0px rgba(0, 0, 0, 0.75);
 }
