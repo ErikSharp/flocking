@@ -7,8 +7,9 @@ export class Boid implements Drawable, Updatable {
     position: Vector;
     velocity: Vector;
     acceleration: Vector;
+    private readonly perceptionRadiusStart = 50;
     private perceptionRadius = 50;
-    private readonly maxForce = 0.05;
+    private readonly maxForce = 0.2;
     private readonly maxSpeed = 4;
 
     constructor(private p: p5, private env: Environment) {
@@ -125,7 +126,8 @@ export class Boid implements Drawable, Updatable {
         alignment.mult(this.env.alignScale);
         cohesion.mult(this.env.cohesionScale);
         separation.mult(this.env.separationScale);
-        this.perceptionRadius *= this.env.perceptionScale;
+        this.perceptionRadius =
+            this.perceptionRadiusStart * this.env.perceptionScale;
 
         this.acceleration.add(alignment);
         this.acceleration.add(cohesion);
@@ -144,5 +146,9 @@ export class Boid implements Drawable, Updatable {
         this.p.strokeWeight(8);
         this.p.stroke(255);
         this.p.point(this.position.x, this.position.y);
+        this.p.noFill();
+        this.p.strokeWeight(1);
+        this.p.stroke(20);
+        this.p.ellipse(this.position.x, this.position.y, this.perceptionRadius);
     }
 }
