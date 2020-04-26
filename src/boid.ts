@@ -8,9 +8,11 @@ export class Boid implements Drawable, Updatable {
     velocity: Vector;
     private acceleration: Vector;
     private readonly perceptionRadiusStart = 50;
+    private readonly maxForceStart = 0.2;
+    private readonly maxSpeedStart = 4;
     private perceptionRadius = 50;
-    private readonly maxForce = 0.2;
-    private readonly maxSpeed = 4;
+    private maxForce = 0.2;
+    private maxSpeed = 4;
 
     constructor(private p: p5, private env: Environment) {
         this.position = p.createVector(p.random(p.width), p.random(p.height));
@@ -37,6 +39,9 @@ export class Boid implements Drawable, Updatable {
         this.acceleration.mult(0);
         this.perceptionRadius =
             this.perceptionRadiusStart * this.env.perceptionScale;
+
+        this.maxSpeed = this.maxSpeedStart * this.env.maxSpeedScale;
+        this.maxForce = this.maxForceStart * this.env.maxForceScale;
 
         let total = 0;
 
