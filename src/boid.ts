@@ -6,7 +6,7 @@ import { Environment } from "./environment";
 export class Boid implements Drawable, Updatable {
     position: Vector;
     velocity: Vector;
-    acceleration: Vector;
+    private acceleration: Vector;
     private readonly perceptionRadiusStart = 50;
     private perceptionRadius = 50;
     private readonly maxForce = 0.2;
@@ -33,101 +33,66 @@ export class Boid implements Drawable, Updatable {
         }
     }
 
-    private align(boids: Boid[]) {
-        let steering = this.p.createVector();
-        let total = 0;
-
-        for (const other of boids) {
-            let dist = this.p.dist(
-                this.position.x,
-                this.position.y,
-                other.position.x,
-                other.position.y
-            );
-            if (other != this && dist < this.perceptionRadius) {
-                steering.add(other.velocity);
-                total++;
-            }
-        }
-
-        if (total > 0) {
-            steering.div(total);
-            steering.setMag(this.maxSpeed);
-            steering.sub(this.velocity);
-            steering.limit(this.maxForce);
-        }
-
-        return steering;
-    }
-
-    private cohesion(boids: Boid[]) {
-        let steering = this.p.createVector();
-        let total = 0;
-
-        for (const other of boids) {
-            let dist = this.p.dist(
-                this.position.x,
-                this.position.y,
-                other.position.x,
-                other.position.y
-            );
-            if (other != this && dist < this.perceptionRadius) {
-                steering.add(other.position);
-                total++;
-            }
-        }
-
-        if (total > 0) {
-            steering.div(total);
-            steering.sub(this.position);
-            steering.setMag(this.maxSpeed);
-            steering.sub(this.velocity);
-            steering.limit(this.maxForce);
-        }
-
-        return steering;
-    }
-
-    private separation(boids: Boid[]) {
-        let steering = this.p.createVector();
-        let total = 0;
-
-        for (const other of boids) {
-            let dist = this.p.dist(
-                this.position.x,
-                this.position.y,
-                other.position.x,
-                other.position.y
-            );
-            if (other != this && dist < this.perceptionRadius) {
-                let diff = Vector.sub(this.position, other.position);
-                diff.div(dist);
-                steering.add(diff);
-                total++;
-            }
-        }
-
-        if (total > 0) {
-            steering.div(total);
-            steering.setMag(this.maxSpeed);
-            steering.sub(this.velocity);
-            steering.limit(this.maxForce);
-        }
-
-        return steering;
-    }
-
     flock(boids: Boid[]) {
         this.acceleration.mult(0);
-        let alignment = this.align(boids);
-        let cohesion = this.cohesion(boids);
-        let separation = this.separation(boids);
-
-        alignment.mult(this.env.alignScale);
-        cohesion.mult(this.env.cohesionScale);
-        separation.mult(this.env.separationScale);
         this.perceptionRadius =
             this.perceptionRadiusStart * this.env.perceptionScale;
+
+        let alignment = this.p.createVector();
+        let alignTotal = 0;
+        let cohesion = this.p.createVector();
+        let cohesionTotal = 0;
+        let separation = this.p.createVector();
+        let separationTotal = 0;
+
+        for (const other of boids) {
+            let dist = this.p.dist(
+                this.position.x,
+                this.position.y,
+                other.position.x,
+                other.position.y
+            );
+            if (other != this && dist < this.perceptionRadius) {
+                //align
+                alignment.add(other.velocity);
+                alignTotal++;
+
+                //cohesion
+                cohesion.add(other.position);
+                cohesionTotal++;
+
+                //separation
+                let diff = Vector.sub(this.position, other.position);
+                diff.div(dist);
+                separation.add(diff);
+                separationTotal++;
+            }
+        }
+
+        if (alignTotal) {
+            alignment.div(alignTotal);
+            alignment.setMag(this.maxSpeed);
+            alignment.sub(this.velocity);
+            alignment.limit(this.maxForce);
+            alignment.mult(this.env.alignScale);
+        }
+
+        if (cohesionTotal) {
+            cohesion.div(cohesionTotal);
+            cohesion.sub(this.position);
+            cohesion.setMag(this.maxSpeed);
+            cohesion.sub(this.velocity);
+            cohesion.limit(this.maxForce);
+            cohesion.mult(this.env.cohesionScale);
+        }
+
+        if (separationTotal) {
+            separation.div(separationTotal);
+            separation.setMag(this.maxSpeed);
+            separation.sub(this.velocity);
+            separation.limit(this.maxForce);
+            separation.mult(this.env.separationScale);
+        }
 
         this.acceleration.add(alignment);
         this.acceleration.add(cohesion);
