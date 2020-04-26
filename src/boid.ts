@@ -38,12 +38,11 @@ export class Boid implements Drawable, Updatable {
         this.perceptionRadius =
             this.perceptionRadiusStart * this.env.perceptionScale;
 
+        let total = 0;
+
         let alignment = this.p.createVector();
-        let alignTotal = 0;
         let cohesion = this.p.createVector();
-        let cohesionTotal = 0;
         let separation = this.p.createVector();
-        let separationTotal = 0;
 
         for (const other of boids) {
             let dist = this.p.dist(
@@ -53,41 +52,36 @@ export class Boid implements Drawable, Updatable {
                 other.position.y
             );
             if (other != this && dist < this.perceptionRadius) {
+                total++;
+
                 //align
                 alignment.add(other.velocity);
-                alignTotal++;
 
                 //cohesion
                 cohesion.add(other.position);
-                cohesionTotal++;
 
                 //separation
                 let diff = Vector.sub(this.position, other.position);
                 diff.div(dist);
                 separation.add(diff);
-                separationTotal++;
             }
         }
 
-        if (alignTotal) {
-            alignment.div(alignTotal);
+        if (total) {
+            alignment.div(total);
             alignment.setMag(this.maxSpeed);
             alignment.sub(this.velocity);
             alignment.limit(this.maxForce);
             alignment.mult(this.env.alignScale);
-        }
 
-        if (cohesionTotal) {
-            cohesion.div(cohesionTotal);
+            cohesion.div(total);
             cohesion.sub(this.position);
             cohesion.setMag(this.maxSpeed);
             cohesion.sub(this.velocity);
             cohesion.limit(this.maxForce);
             cohesion.mult(this.env.cohesionScale);
-        }
 
-        if (separationTotal) {
-            separation.div(separationTotal);
+            separation.div(total);
             separation.setMag(this.maxSpeed);
             separation.sub(this.velocity);
             separation.limit(this.maxForce);

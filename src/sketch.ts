@@ -21,8 +21,6 @@ export class Sketch implements Drawable, Updatable {
         }
     }
 
-    setup() {}
-
     update() {
         for (const boid of this.boids) {
             boid.flock(this.boids);
