@@ -143,12 +143,17 @@ export class Boid implements Drawable, Updatable {
     }
 
     draw(): void {
-        this.p.strokeWeight(8);
-        this.p.stroke(255);
-        this.p.point(this.position.x, this.position.y);
         this.p.noFill();
+        this.p.push();
+        this.p.strokeWeight(1);
+        this.p.stroke(200);
+        this.p.translate(this.position.x, this.position.y);
+        this.p.rotate(this.velocity.heading() + this.p.HALF_PI);
+        this.p.triangle(0, 0, 7, 20, -7, 20);
+        this.p.pop();
         this.p.strokeWeight(1);
         this.p.stroke(20);
+        this.p.ellipseMode(this.p.CENTER);
         this.p.ellipse(this.position.x, this.position.y, this.perceptionRadius);
     }
 }
