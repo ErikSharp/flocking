@@ -2,9 +2,11 @@ import { Drawable } from "./drawable";
 import { Updatable } from "./updatable";
 import p5, { Vector } from "p5";
 import { Environment } from "./environment";
+import { VectorContainer } from "./QuadTreeComponents/vectorContainer";
+import { Rectangle } from "./QuadTreeComponents/rectangle";
 
-export class Boid implements Drawable, Updatable {
-    position: Vector;
+export class Boid implements Drawable, Updatable, VectorContainer {
+    private position: Vector;
     velocity: Vector;
     private acceleration: Vector;
     private readonly perceptionRadiusStart = 50;
@@ -19,6 +21,19 @@ export class Boid implements Drawable, Updatable {
         this.velocity = Vector.random2D();
         this.velocity.setMag(p.random(2, 4));
         this.acceleration = p.createVector();
+    }
+
+    get vector(): p5.Vector {
+        return this.position;
+    }
+
+    getSearchRectangle(): Rectangle<Boid> {
+        return new Rectangle<Boid>(
+            this.position.x - this.perceptionRadius,
+            this.position.y - this.perceptionRadius,
+            this.perceptionRadius * 2,
+            this.perceptionRadius * 2
+        );
     }
 
     private edges() {
@@ -116,7 +131,7 @@ export class Boid implements Drawable, Updatable {
         this.p.triangle(0, 0, 7, 20, -7, 20);
         this.p.pop();
         this.p.strokeWeight(1);
-        this.p.stroke(20);
+        this.p.stroke(0, 0, 255, 150);
         this.p.ellipseMode(this.p.CENTER);
         this.p.ellipse(this.position.x, this.position.y, this.perceptionRadius);
     }

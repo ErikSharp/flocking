@@ -1,7 +1,7 @@
 import p5, { Color } from "p5";
 import { Updatable } from "./updatable";
 
-export class Environment {
+export class Environment implements Updatable {
     private alignSlider: p5.Element;
     private alignLabel: p5.Element;
 
@@ -20,7 +20,16 @@ export class Environment {
     private maxForceSlider: p5.Element;
     private maxForceLabel: p5.Element;
 
+    private quadTreeCapSlider: p5.Element;
+    private quadTreeCapLabel: p5.Element;
+
+    private frameRateP: p5.Element;
+    private frameRates: number[] = [];
+
     constructor(private p: p5) {
+        this.frameRateP = p.createP("Framerates: calculating...");
+        this.frameRateP.class("framerate");
+
         let controls = p.createDiv();
         controls.class("controls");
 
@@ -36,6 +45,8 @@ export class Environment {
         maxSpeedGroup.class("control-group");
         let maxForceGroup = p.createDiv();
         maxForceGroup.class("control-group");
+        let quadTreeCapGroup = p.createDiv();
+        quadTreeCapGroup.class("control-group");
 
         controls.child(alignGroup);
         controls.child(cohesionGroup);
@@ -43,6 +54,7 @@ export class Environment {
         controls.child(perceptionGroup);
         controls.child(maxSpeedGroup);
         controls.child(maxForceGroup);
+        controls.child(quadTreeCapGroup);
 
         alignGroup.child(p.createP("Alignment"));
         this.alignSlider = p.createSlider(0, 5, 1, 0.1);
@@ -79,6 +91,31 @@ export class Environment {
         maxForceGroup.child(this.maxForceSlider);
         this.maxForceLabel = p.createP("100%");
         maxForceGroup.child(this.maxForceLabel);
+
+        quadTreeCapGroup.child(p.createP("Tree Division"));
+        this.quadTreeCapSlider = p.createSlider(1, 100, 1, 1);
+        quadTreeCapGroup.child(this.quadTreeCapSlider);
+        this.quadTreeCapLabel = p.createP("4");
+        quadTreeCapGroup.child(this.quadTreeCapLabel);
+    }
+
+    update(): void {
+        this.frameRates.push(this.p.frameRate());
+
+        if (this.frameRates.length % 60 === 0) {
+            this.frameRateP.html(
+                `Framerates: min ${this.p.ceil(
+                    this.p.min(this.frameRates)
+                )}, max ${this.p.ceil(
+                    this.p.max(this.frameRates)
+                )}, avg ${this.p.ceil(
+                    this.frameRates.reduce((a, b) => a + b) /
+                        this.frameRates.length
+                )}`
+            );
+
+            this.frameRates = [];
+        }
     }
 
     get alignScale(): number {
@@ -114,6 +151,12 @@ export class Environment {
     get maxForceScale(): number {
         let value = +this.maxForceSlider.value();
         this.maxForceLabel.html(`${this.p.round(value * 100)}%`);
+        return value;
+    }
+
+    get quadTreeCap(): number {
+        let value = +this.quadTreeCapSlider.value();
+        this.quadTreeCapLabel.html(value.toString());
         return value;
     }
 }

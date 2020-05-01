@@ -22,12 +22,20 @@ body {
     height: 100vh;
 }
 
+.framerate {
+    font-size: 2rem;
+    position: fixed;
+    left: 10px;
+    bottom: 10px;
+    font-family: sans-serif;
+}
+
 .controls {
     position: absolute;
     left: 50%;
     transform: translate(-50%, 0);
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(7, 1fr);
     grid-gap: 1rem;
     margin-top: 0.3rem;
 
