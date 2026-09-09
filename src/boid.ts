@@ -1,14 +1,14 @@
 import { Drawable } from "./drawable";
 import { Updatable } from "./updatable";
-import p5, { Vector } from "p5";
+import p5 from "p5";
 import { Environment } from "./environment";
 import { VectorContainer } from "./QuadTreeComponents/vectorContainer";
 import { Rectangle } from "./QuadTreeComponents/rectangle";
 
 export class Boid implements Drawable, Updatable, VectorContainer {
-    private position: Vector;
-    velocity: Vector;
-    private acceleration: Vector;
+    private position: p5.Vector;
+    velocity: p5.Vector;
+    private acceleration: p5.Vector;
     private readonly perceptionRadiusStart = 50;
     private readonly maxForceStart = 0.2;
     private readonly maxSpeedStart = 4;
@@ -18,7 +18,7 @@ export class Boid implements Drawable, Updatable, VectorContainer {
 
     constructor(private p: p5, private env: Environment) {
         this.position = p.createVector(p.random(p.width), p.random(p.height));
-        this.velocity = Vector.random2D();
+        this.velocity = p5.Vector.random2D();
         this.velocity.setMag(p.random(2, 4));
         this.acceleration = p.createVector();
     }
@@ -81,7 +81,7 @@ export class Boid implements Drawable, Updatable, VectorContainer {
                 cohesion.add(other.position);
 
                 //separation
-                let diff = Vector.sub(this.position, other.position);
+                let diff = p5.Vector.sub(this.position, other.position);
                 diff.div(dist);
                 separation.add(diff);
             }

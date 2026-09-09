@@ -1,4 +1,4 @@
-import p5, { Color } from "p5";
+import p5 from "p5";
 import { Updatable } from "./updatable";
 
 export class Environment implements Updatable {

@@ -1,3 +1,5 @@
+@use "sass:color";
+
 $primary-color: gainsboro;
 $secondary-color: #777;
 
@@ -43,7 +45,7 @@ body {
         display: grid;
         grid-template-rows: repeat(3, 1fr);
         justify-items: center;
-        background-color: lighten($secondary-color, 10);
+        background-color: color.adjust($secondary-color, $lightness: 10%);
         border: $secondary-color solid 0.3rem;
         border-radius: 1rem;
         justify-self: center;

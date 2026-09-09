@@ -1,5 +1,5 @@
-import { Vector } from "p5";
+import p5 from "p5";
 
 export interface VectorContainer {
-    readonly vector: Vector;
+    readonly vector: p5.Vector;
 }
